@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-go
+  labels:
+    app: devops-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-go
+  template:
+    metadata:
+      labels:
+        app: devops-go
+    spec:
+      serviceAccountName: devops-go
+      containers:
+        - name: devops-go
+          image: 417687554336.dkr.ecr.eu-north-1.amazonaws.com/docplanner-go:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+          volumeMounts:
+          - name: p12
+            mountPath: "/go/file.p12"
+            readOnly: true
+      volumes:
+      - name: p12
+        secret:
+          secretName: file.p12

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-go
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - "--dockerfile=./Dockerfile"
+    - "--context=s3://test-devops-code/golang-app.tar.gz"
+    - "--destination=417687554336.dkr.ecr.eu-north-1.amazonaws.com/docplanner-go:latest"
+    env:
+      - name: AWS_REGION
+        value: eu-north-1
+    volumeMounts:
+    # when not using instance role
+    - name: aws-secret
+      mountPath: /root/.aws/
+  restartPolicy: Never
+  volumes:
+  # when not using instance role
+  - name: aws-secret
+    secret:
+      secretName: aws-secret
